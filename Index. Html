@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Prince | Sécurité Informatique</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="Style.css"/>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<canvas id="matrix"></canvas>
+
+<nav>
+  <div class="logo">[<span>Prince</span>]</div>
+  <ul>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projets</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <div class="hero-content">
+    <p class="terminal-line">initializing_portfolio.sh</p>
+    <h1>
+      Bonjour, je suis
+      <span class="name">Prince</span>
+    </h1>
+    <p class="hero-sub">Étudiant en Sécurité Informatique</p>
+    <p class="hero-desc">
+      Passionné par la cybersécurité, la protection des systèmes et la recherche de vulnérabilités. En formation pour devenir un expert en sécurité des réseaux et des applications.
+    </p>
+    <div class="hero-btns">
+      <a href="#projects" class="btn btn-primary">Voir mes projets</a>
+      <a href="#contact" class="btn btn-outline">Me contacter</a>
+    </div>
+  </div>
+  <div class="status-bar">
+    <div class="stat">
+      <span class="stat-num">01</span>
+      <span class="stat-label">Année d'études</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">∞</span>
+      <span class="stat-label">Curiosité</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">100%</span>
+      <span class="stat-label">Motivation</span>
+    </div>
+  </div>
+</div>
+
+<section id="skills">
+  <div class="section-header">
+    <span class="section-tag">// 01</span>
+    <div class="section-line"></div>
+  </div>
+  <h2 class="section-title">Compétences</h2>
+  <br/>
+  <div class="skills-grid">
+    <div class="skill-card">
+      <div class="skill-icon">🔐</div>
+      <div class="skill-name">Cryptographie</div>
+      <div class="skill-desc">Chiffrement, hash, PKI</div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">🌐</div>
+      <div class="skill-name">Réseaux</div>
+      <div class="skill-desc">TCP/IP, firewall, VPN</div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">🐧</div>
+      <div class="skill-name">Linux</div>
+      <div class="skill-desc">Administration système</div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">🕵️</div>
+      <div class="skill-name">Pentesting</div>
+      <div class="skill-desc">Tests d'intrusion basiques</div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">💻</div>
+      <div class="skill-name">HTML/CSS/JS</div>
+      <div class="skill-desc">Développement web</div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">🛡️</div>
+      <div class="skill-name">OWASP</div>
+      <div class="skill-desc">Sécurité des applications web</div>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="section-header">
+    <span class="section-tag">// 02</span>
+    <div class="section-line"></div>
+  </div>
+  <h2 class="section-title">Projets</h2>
+  <br/>
+  <div class="projects-list">
+    <div class="project-card">
+      <div class="project-num">01</div>
+      <div class="project-info">
+        <div class="project-name">Portfolio Personnel</div>
+        <div class="project-desc">Site web portfolio développé en HTML, CSS et JavaScript pour présenter mes compétences et projets en sécurité informatique.</div>
+        <div class="project-tags">
+          <span class="tag">HTML</span>
+          <span class="tag">CSS</span>
+          <span class="tag">JavaScript</span>
+        </div>
+      </div>
+    </div>
+    <div class="project-card">
+      <div class="project-num">02</div>
+      <div class="project-info">
+        <div class="project-name">À venir...</div>
+        <div class="project-desc">Mes prochains projets en cybersécurité seront ajoutés ici au fur et à mesure de ma formation.</div>
+        <div class="project-tags">
+          <span class="tag">En cours</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="section-header">
+    <span class="section-tag">// 03</span>
+    <div class="section-line"></div>
+  </div>
+  <h2 class="section-title">Contact</h2>
+  <br/>
+  <div class="contact-box">
+    <p>Tu veux collaborer ou juste discuter de cybersécurité ?</p>
+    <a href="mailto:tonmail@email.com" class="contact-email">tonmail@email.com</a>
+    <br/><br/><br/>
+    <a href="mailto:tonmail@email.com" class="btn btn-primary">Envoyer un message</a>
+  </div>
+</section>
+
+<footer>
+  &lt;/Prince&gt; — Construit avec passion © 2025
+</footer>
+
+<script src="Script.js"></script>
+</body>
+</html>
