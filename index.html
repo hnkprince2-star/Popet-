@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Prince | Sécurité Informatique</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --green: #00ff9d;
+      --dark-green: #00cc7a;
+      --bg: #050a0e;
+      --bg2: #0a1520;
+      --text: #c8e6d0;
+      --dim: #3a5a4a;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      width: 12px; height: 12px;
+      border: 2px solid var(--green);
+      border-radius: 50%;
+      position: fixed; pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s, background 0.2s;
+    }
+    .cursor.click { background: var(--green); transform: translate(-50%, -50%) scale(1.5); }
+
+    /* Scanline overlay */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,157,0.015) 2px, rgba(0,255,157,0.015) 4px);
+      pointer-events: none; z-index: 1000;
+    }
+
+    /* Matrix background canvas */
+    #matrix { position: fixed; top: 0; left: 0; z-index: 0; opacity: 0.07; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.2rem 2rem;
+      background: rgba(5,10,14,0.85);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0,255,157,0.1);
+    }
+
+    .logo {
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--green);
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+    }
+    .logo span { color: var(--text); }
+
+    nav ul { list-style: none; display: flex; gap: 2rem; }
+    nav ul a {
+      color: var(--dim);
+      text-decoration: none;
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: color 0.3s;
+      font-weight: 600;
+    }
+    nav ul a:hover { color: var(--green); }
+
+    /* HERO */
+    .hero {
+      position: relative; z-index: 2;
+      min-height: 100vh;
+      display: flex; align-items: center;
+      padding: 0 2rem;
+      padding-top: 80px;
+    }
+
+    .hero-content { max-width: 700px; }
+
+    .terminal-line {
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--green);
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards;
+    }
+    .terminal-line::before { content: '> '; color: var(--dim); }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 8vw, 5rem);
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -1px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.3s forwards;
+    }
+    .hero h1 .name {
+      color: var(--green);
+      display: block;
+      text-shadow: 0 0 40px rgba(0,255,157,0.4);
+    }
+
+    .hero-sub {
+      margin-top: 1.5rem;
+      font-size: 1.1rem;
+      color: var(--dim);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.5s forwards;
+    }
+
+    .hero-desc {
+      margin-top: 1.5rem;
+      font-size: 1rem;
+      color: var(--text);
+      max-width: 480px;
+      line-height: 1.7;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.7s forwards;
+    }
+
+    .hero-btns {
+      margin-top: 2.5rem;
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.9s forwards;
+    }
+
+    .btn {
+      padding: 0.75rem 2rem;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      border: none; cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s;
+      display: inline-block;
+    }
+    .btn-primary {
+      background: var(--green);
+      color: var(--bg);
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+    }
+    .btn-primary:hover { background: var(--dark-green); box-shadow: 0 0 30px rgba(0,255,157,0.4); }
+    .btn-outline {
+      background: transparent;
+      color: var(--green);
+      border: 1px solid var(--green);
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+    }
+    .btn-outline:hover { background: rgba(0,255,157,0.08); }
+
+    /* STATUS BAR */
+    .status-bar {
+      position: absolute; bottom: 3rem; left: 2rem;
+      display: flex; gap: 2rem;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 1.1s forwards;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1.8rem;
+      color: var(--green);
+      display: block;
+    }
+    .stat-label {
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      color: var(--dim);
+      text-transform: uppercase;
+    }
+
+    /* SECTIONS */
+    section {
+      position: relative; z-index: 2;
+      padding: 6rem 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 3rem;
+    }
+    .section-tag {
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--green);
+      font-size: 0.8rem;
+    }
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, var(--green), transparent);
+    }
+    .section-title {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    /* SKILLS */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .skill-card {
+      background: var(--bg2);
+      border: 1px solid rgba(0,255,157,0.1);
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s;
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+    }
+    .skill-card:hover {
+      border-color: var(--green);
+      box-shadow: 0 0 20px rgba(0,255,157,0.1);
+      transform: translateY(-3px);
+    }
+    .skill-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 3px; height: 100%;
+      background: var(--green);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .skill-card:hover::before { opacity: 1; }
+
+    .skill-icon { font-size: 1.5rem; margin-bottom: 0.8rem; }
+    .skill-name {
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      color: var(--green);
+    }
+    .skill-desc { font-size: 0.85rem; color: var(--dim); margin-top: 0.4rem; }
+
+    /* PROJECTS */
+    .projects-list { display: flex; flex-direction: column; gap: 1.5rem; }
+
+    .project-card {
+      background: var(--bg2);
+      border: 1px solid rgba(0,255,157,0.1);
+      padding: 2rem;
+      display: flex; justify-content: space-between; align-items: flex-start;
+      gap: 1rem;
+      transition: all 0.3s;
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+    }
+    .project-card:hover {
+      border-color: rgba(0,255,157,0.4);
+      box-shadow: 0 0 30px rgba(0,255,157,0.07);
+    }
+
+    .project-num {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 2.5rem;
+      color: rgba(0,255,157,0.15);
+      font-weight: 700;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .project-info { flex: 1; }
+    .project-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--text);
+    }
+    .project-desc { font-size: 0.9rem; color: var(--dim); margin-top: 0.5rem; line-height: 1.6; }
+    .project-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+    .tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.6rem;
+      border: 1px solid rgba(0,255,157,0.3);
+      color: var(--green);
+      letter-spacing: 1px;
+    }
+
+    /* CONTACT */
+    .contact-box {
+      background: var(--bg2);
+      border: 1px solid rgba(0,255,157,0.15);
+      padding: 3rem;
+      text-align: center;
+      clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+    }
+    .contact-box p {
+      color: var(--dim);
+      margin-bottom: 2rem;
+      font-size: 1rem;
+      letter-spacing: 1px;
+    }
+    .contact-email {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1.1rem;
+      color: var(--green);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(0,255,157,0.3);
+      padding-bottom: 2px;
+    }
+
+    /* FOOTER */
+    footer {
+      position: relative; z-index: 2;
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid rgba(0,255,157,0.08);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--dim);
+      letter-spacing: 2px;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Glitch effect on name */
+    .name {
+      position: relative;
+      animation: glitch 4s infinite;
+    }
+    @keyframes glitch {
+      0%, 95%, 100% { text-shadow: 0 0 40px rgba(0,255,157,0.4); }
+      96% { text-shadow: -3px 0 #ff006e, 3px 0 #00f0ff, 0 0 40px rgba(0,255,157,0.4); }
+      97% { text-shadow: 3px 0 #ff006e, -3px 0 #00f0ff, 0 0 40px rgba(0,255,157,0.4); }
+      98% { text-shadow: 0 0 40px rgba(0,255,157,0.4); }
+    }
+
+    @media (max-width: 600px) {
+      nav ul { gap: 1rem; }
+      .status-bar { gap: 1.2rem; }
+      .project-card { flex-direction: column; }
+      .contact-box { padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<canvas id="matrix"></canvas>
+
+<nav>
+  <div class="logo">[<span>Prince</span>]</div>
+  <ul>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projets</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <div class="hero-content">
+    <p class="terminal-line">initializing_portfolio.sh</p>
+    <h1>
+      Bonjour, je suis
+      <span class="name">Prince</span>
+    </h1>
+    <p class="hero-sub">Étudiant en Sécurité Informatique</p>
+    <p class="hero-desc">
+      Passionné par la cybersécurité, la protection des systèmes et la recherche de vulnérabilités. En formation pour devenir un expert en sécurité des réseaux et des applications.
+    </p>
+    <div class="hero-btns">
+      <a href="#projects" class="btn btn-primary">Voir mes projets</a>
+      <a href="#contact" class="btn btn-outline">Me contacter</a>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <div class="stat">
+      <span class="stat-num">01</span>
+      <span class="stat-label">Année d'études</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">∞</span>
+      <span class="stat-label">Curiosité</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">100%</span>
+      <span class="stat-label">Motivation</span>
+    </div>
+  </div>
+</div>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-header">
+    <span class="section-tag">// 01</span>
+    <div class="section-line"></div>
+  </div>
+  <h2 class="section-title">Compétences</h2>
+  <br/>
+  <div class="skills-grid">
+    <div class="skill-card">
+      <div class="skill-icon">🔐</div>
+      <div class="skill-name">Cryptographie</div>
+      <div class="skill-desc">Chiffrement, hash, PKI</div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">🌐</div>
+      <div class="skill-name">Réseaux</div>
+      <div class="skill-desc">TCP/IP, firewall, VPN</div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">🐧</div>
+      <div class="skill-name">Linux</div>
+      <div class="skill-desc">Administration système</div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">🕵️</div>
+      <div class="skill-name">Pentesting</div>
+      <div class="skill-desc">Tests d'intrusion basiques</div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">💻</div>
+      <div class="skill-name">HTML/CSS/JS</div>
+      <div class="skill-desc">Développement web</div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">🛡️</div>
+      <div class="skill-name">OWASP</div>
+      <div class="skill-desc">Sécurité des applications web</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-header">
+    <span class="section-tag">// 02</span>
+    <div class="section-line"></div>
+  </div>
+  <h2 class="section-title">Projets</h2>
+  <br/>
+  <div class="projects-list">
+    <div class="project-card">
+      <div class="project-num">01</div>
+      <div class="project-info">
+        <div class="project-name">Portfolio Personnel</div>
+        <div class="project-desc">Site web portfolio développé en HTML, CSS et JavaScript pour présenter mes compétences et projets en sécurité informatique.</div>
+        <div class="project-tags">
+          <span class="tag">HTML</span>
+          <span class="tag">CSS</span>
+          <span class="tag">JavaScript</span>
+        </div>
+      </div>
+    </div>
+    <div class="project-card">
+      <div class="project-num">02</div>
+      <div class="project-info">
+        <div class="project-name">À venir...</div>
+        <div class="project-desc">Mes prochains projets en cybersécurité seront ajoutés ici au fur et à mesure de ma formation.</div>
+        <div class="project-tags">
+          <span class="tag">En cours</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-header">
+    <span class="section-tag">// 03</span>
+    <div class="section-line"></div>
+  </div>
+  <h2 class="section-title">Contact</h2>
+  <br/>
+  <div class="contact-box">
+    <p>Tu veux collaborer ou juste discuter de cybersécurité ?</p>
+    <a href="mailto:tonmail@email.com" class="contact-email">tonmail@email.com</a>
+    <br/><br/><br/>
+    <a href="mailto:tonmail@email.com" class="btn btn-primary">Envoyer un message</a>
+  </div>
+</section>
+
+<footer>
+  &lt;/Prince&gt; — Construit avec passion © 2025
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+  });
+  document.addEventListener('mousedown', () => cursor.classList.add('click'));
+  document.addEventListener('mouseup', () => cursor.classList.remove('click'));
+
+  // Matrix rain
+  const canvas = document.getElementById('matrix');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+
+  const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノABCDEF';
+  const fontSize = 14;
+  const cols = Math.floor(canvas.width / fontSize);
+  const drops = Array(cols).fill(1);
+
+  function drawMatrix() {
+    ctx.fillStyle = 'rgba(5,10,14,0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#00ff9d';
+    ctx.font = fontSize + 'px Share Tech Mono';
+    drops.forEach((y, i) => {
+      const char = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(char, i * fontSize, y * fontSize);
+      if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    });
+  }
+  setInterval(drawMatrix, 50);
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
+</body>
+</html>
